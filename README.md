@@ -38,7 +38,7 @@ Make sure to have Node.js and npm installed on your system before running the ap
 
 ## Configuration
 
-1. Clone the repository: `git clone [REPO_URL]`
+1. Clone the repository: `git clone https://github.com/raymelguerra/key-cloak-integration.git`
 2. Install dependencies: `npm install`
 3. Configure environment variables in a `.env` file with Keycloak credentials.
 
