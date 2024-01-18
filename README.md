@@ -58,4 +58,3 @@ This project is under the MIT license. Refer to the `LICENSE` file for more deta
 ---
 
 I hope this README file is helpful for your repository. Good luck with your project!
-
