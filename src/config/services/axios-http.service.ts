@@ -48,6 +48,17 @@ export class AxiosHttpService {
       this.sendError(error, code);
     }
   }
+  
+  async put(url: string, code?: string, hhtpData?: any, config?) {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.put(url, hhtpData, config),
+      );
+      return data;
+    } catch (error) {
+      this.sendError(error, code);
+    }
+  }
 
   private sendError(error, code) {
     let httpError = 500;
@@ -64,8 +75,9 @@ export class AxiosHttpService {
         ' ' +
         [d.getHours(), d.getMinutes(), d.getSeconds()].join(':');
       errors = {
+        method: code,
         data,
-        status,
+        statusCode: status,
         statusText,
         timestamp: dformat,
       };

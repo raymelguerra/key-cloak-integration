@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Request,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -61,7 +62,7 @@ export class AuthController {
       family_name,
       email,
       realm_access,
-      user_id: sub
+      user_id: sub,
     };
   }
 
@@ -74,11 +75,28 @@ export class AuthController {
     return this.authService.refreshToken(refresh);
   }
 
-  @Public()
   @Post('/logout')
   logout(@Request() req: Request) {
     const { authorization } = req.headers as any;
     const [, refresh] = authorization.split(' ');
     return this.authService.logout(refresh);
+  }
+
+  @Public()
+  @Post('/revoke')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  revoke(@Body('token') token: string) {
+    const [_, access_token] = token.includes('Bearer') ? token.split(' ') : ['', token]
+    return this.authService.revoke(access_token);
+  }
+
+  @Public()
+  @Get('/recovery-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  sendPasswordRecoveryEmail(
+    @Query('email') email: string,
+    @Query('lifespan') lifespan: number,
+  ) {
+    return this.authService.recoveryPassword(email, lifespan);
   }
 }
