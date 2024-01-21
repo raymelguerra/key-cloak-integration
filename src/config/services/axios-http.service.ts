@@ -48,7 +48,7 @@ export class AxiosHttpService {
       this.sendError(error, code);
     }
   }
-  
+
   async put(url: string, code?: string, hhtpData?: any, config?) {
     try {
       const { data } = await firstValueFrom(

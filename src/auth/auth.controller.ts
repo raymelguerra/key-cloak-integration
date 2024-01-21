@@ -40,10 +40,7 @@ export class AuthController {
   }
 
   @Get('/me')
-  getProfile(
-    @AuthenticatedUser()
-    user: any,
-  ): any {
+  getProfile(@AuthenticatedUser() user: any): any {
     const {
       email_verified,
       name,
@@ -86,7 +83,9 @@ export class AuthController {
   @Post('/revoke')
   @HttpCode(HttpStatus.NO_CONTENT)
   revoke(@Body('token') token: string) {
-    const [_, access_token] = token.includes('Bearer') ? token.split(' ') : ['', token]
+    const [_, access_token] = token.includes('Bearer')
+      ? token.split(' ')
+      : ['', token];
     return this.authService.revoke(access_token);
   }
 
@@ -98,5 +97,14 @@ export class AuthController {
     @Query('lifespan') lifespan: number,
   ) {
     return this.authService.recoveryPassword(email, lifespan);
+  }
+
+  @Post('/change-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  changePassword(
+    @Body('new_password') new_password: string,
+    @AuthenticatedUser() user: any,
+  ) {
+    return this.authService.changePassword(user.sub, new_password);
   }
 }

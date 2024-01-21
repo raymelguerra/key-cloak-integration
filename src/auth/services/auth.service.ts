@@ -6,6 +6,7 @@ import { AxiosRequestConfig } from 'axios';
 import { IntrospectRequest } from 'src/utils/types/introspect.type';
 import { UserService } from 'src/user/services/user.service';
 import { ActionEmail } from 'src/utils/enums/action-email.enum';
+import { URLSearchParams } from 'url';
 
 @Injectable()
 export class AuthService {
@@ -143,12 +144,39 @@ export class AuthService {
       params: { client_id: this.user.client_id, lifespan },
     };
 
-    const test = String(ActionEmail.UPDATE_PASSWORD);
-
     const data = await this.httpService.put(
       `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${users[0].id}/execute-actions-email`,
       'Recovery Password',
-      [test],
+      [ActionEmail.UPDATE_PASSWORD],
+      headersRequest,
+    );
+
+    this.revoke(access_token);
+
+    return data;
+  }
+
+  async changePassword(user_id: string, new_password: string): Promise<any> {
+    const { access_token } = await this.login(
+      process.env.USER_ADMIN,
+      process.env.PASSWORD_ADMIN,
+    );
+
+    const headersRequest: AxiosRequestConfig = {
+      headers: {
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${access_token}`,
+      },
+    };
+
+    const data = await this.httpService.put(
+      `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${user_id}/reset-password`,
+      'Change Password',
+      {
+        type: 'password',
+        temporary: 'false',
+        value: new_password,
+      },
       headersRequest,
     );
 
