@@ -4,14 +4,13 @@ import { AxiosRequestConfig } from 'axios';
 import { UserSearchOptions } from 'src/utils/types/user-search-options.type';
 import { UserProfile } from 'src/utils/types/user-profile.type';
 import { ActionEmail } from 'src/utils/enums/action-email.enum';
-import { RoleSearchOptions } from 'src/utils/types/role-search-options.type';
-import { ClientService } from 'src/infrastructure/services/client.service';
+import { RoleService } from './role.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly httpService: AxiosHttpService,
-    private readonly clientService: ClientService,
+    private readonly roleService: RoleService,
   ) {}
 
   async getAll(
@@ -68,6 +67,8 @@ export class UserService {
       },
       params: { client_id: process.env.CLIENT_ID, lifespan: 86400 },
     };
+
+    await this.roleService.addRole(token, body.realmRoles[0], user_id)
 
     this.httpService.put(
       `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${user_id}/execute-actions-email`,
