@@ -72,6 +72,7 @@ export class UserController {
   }
 
   @Patch('roles/:user_id/add')
+  @HttpCode(HttpStatus.NO_CONTENT)
   addRole(
     @Request() req: Request,
     @Body('role_name') role_name: string,
@@ -83,6 +84,7 @@ export class UserController {
   }
 
   @Patch('roles/:user_id/remove')
+  @HttpCode(HttpStatus.NO_CONTENT)
   removeRole(
     @Request() req: Request,
     @Body('role_name') role_name: string,

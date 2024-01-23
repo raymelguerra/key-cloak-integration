@@ -90,10 +90,3 @@ export class RoleService {
     return data;
   }
 }
-
-// verify mapping roles of user `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${user_id}/role-mappings/realm`,
-//  /admin/realms/{realm}/users/{id}/role-mappings/clients/{client}
-// /admin/realms/{realm}/users/{id}/role-mappings/realm
-// GET /admin/realms/{realm}/users/{id}/role-mappings
-
-// GEt all /admin/realms/{realm}/roles
