@@ -14,10 +14,14 @@ import {
 } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { UserProfile } from 'src/utils/types/user-profile.type';
+import { RoleService } from './services/role.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly roleService: RoleService,
+  ) {}
 
   @Get('')
   getAll(@Request() req: Request, @Query() query: any) {
@@ -58,5 +62,34 @@ export class UserController {
     const { authorization } = req.headers as any;
 
     return this.userService.update(authorization, user_id, body);
+  }
+
+  @Get('roles/all')
+  getAllRoles(@Request() req: Request, @Query() query: any) {
+    const { authorization } = req.headers as any;
+
+    return this.roleService.getAllRoles(authorization, query);
+  }
+
+  @Patch('roles/:user_id/add')
+  addRole(
+    @Request() req: Request,
+    @Body('role_name') role_name: string,
+    @Param('user_id') user_id: string,
+  ) {
+    const { authorization } = req.headers as any;
+
+    return this.roleService.addRole(authorization, role_name, user_id);
+  }
+
+  @Patch('roles/:user_id/remove')
+  removeRole(
+    @Request() req: Request,
+    @Body('role_name') role_name: string,
+    @Param('user_id') user_id: string,
+  ) {
+    const { authorization } = req.headers as any;
+
+    return this.roleService.removeRole(authorization, role_name, user_id);
   }
 }

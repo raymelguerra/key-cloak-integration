@@ -14,6 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RoleModule } from './role/role.module';
     AuthModule,
     UserModule,
     RoleModule,
+    InfrastructureModule,
   ],
   controllers: [AppController],
   providers: [

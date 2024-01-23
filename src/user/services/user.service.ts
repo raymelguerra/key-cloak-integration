@@ -4,11 +4,15 @@ import { AxiosRequestConfig } from 'axios';
 import { UserSearchOptions } from 'src/utils/types/user-search-options.type';
 import { UserProfile } from 'src/utils/types/user-profile.type';
 import { ActionEmail } from 'src/utils/enums/action-email.enum';
-import { STATUS_CODES } from 'http';
+import { RoleSearchOptions } from 'src/utils/types/role-search-options.type';
+import { ClientService } from 'src/infrastructure/services/client.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly httpService: AxiosHttpService) {}
+  constructor(
+    private readonly httpService: AxiosHttpService,
+    private readonly clientService: ClientService,
+  ) {}
 
   async getAll(
     token: string,
@@ -133,7 +137,7 @@ export class UserService {
     );
     return data;
   }
+
 }
-//PUT /admin/realms/{realm}/users/{id}
-//POST /admin/realms/{realm}/users
-// DELETE /admin/realms/{realm}/users/{id}
+
+//GET /admin/realms/{realm}/users/{id}/role-mappings/clients/{client}

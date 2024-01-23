@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import axios, { AxiosRequestConfig } from 'axios';
 
 @Injectable()
 export class AxiosHttpService {
@@ -27,7 +28,6 @@ export class AxiosHttpService {
   }
 
   async delete(url: string, code?: string, config?) {
-    ``;
     try {
       const { data } = await firstValueFrom(
         this.httpService.delete(url, config),
@@ -83,5 +83,14 @@ export class AxiosHttpService {
       };
     }
     throw new HttpException(errors, httpError);
+  }
+
+  async specialMethod(code: string, config: AxiosRequestConfig) {
+    try {
+      const response = await axios.request(config);
+      return response.data;
+    } catch (error) {
+      this.sendError(error, code);
+    }
   }
 }
