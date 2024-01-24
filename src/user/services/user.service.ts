@@ -1,16 +1,27 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { AxiosHttpService } from 'src/config/services/axios-http.service';
 import { AxiosRequestConfig } from 'axios';
 import { UserSearchOptions } from 'src/utils/types/user-search-options.type';
 import { UserProfile } from 'src/utils/types/user-profile.type';
 import { ActionEmail } from 'src/utils/enums/action-email.enum';
 import { RoleService } from './role.service';
+import { KeycloakEmailService } from 'src/infrastructure/services/keycloak-email.service';
+import { EmailSearchOption } from 'src/utils/types/email-search-option.type';
+import { forkJoin, from, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly httpService: AxiosHttpService,
     private readonly roleService: RoleService,
+    private readonly keycloakEmailService: KeycloakEmailService,
   ) {}
 
   async getAll(
@@ -45,13 +56,17 @@ export class UserService {
     return data;
   }
 
-  async create(token: string, body: UserProfile): Promise<UserProfile[]> {
+  async create(
+    token: string,
+    body: UserProfile,
+    query: EmailSearchOption,
+  ): Promise<any> {
     const headersRequest: AxiosRequestConfig = {
       headers: {
         Authorization: `${token}`,
       },
     };
-    const data = await this.httpService.post(
+    const _data = await this.httpService.post(
       `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users `,
       'Create User',
       body,
@@ -61,23 +76,27 @@ export class UserService {
     let users = await this.getAll(token, { email: body.email });
     let user_id = users[0].id;
 
-    const headersEmailRequest: AxiosRequestConfig = {
-      headers: {
-        Authorization: `${token}`,
-      },
-      params: { client_id: process.env.CLIENT_ID, lifespan: 86400 },
-    };
-
-    await this.roleService.addRole(token, body.realmRoles[0], user_id)
-
-    this.httpService.put(
-      `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${user_id}/execute-actions-email`,
-      'Recovery and Verify Password',
-      [ActionEmail.VERIFY_EMAIL, ActionEmail.UPDATE_PASSWORD],
-      headersEmailRequest,
+    const roles = from(
+      this.roleService.addRole(token, body.realmRoles[0], user_id),
+    );
+    const send_email = from(
+      this.keycloakEmailService.sendEmail(
+        token,
+        user_id,
+        [ActionEmail.VERIFY_EMAIL, ActionEmail.UPDATE_PASSWORD],
+        query,
+      ),
     );
 
-    return data;
+    return forkJoin([roles, send_email]).pipe(
+      map((_result) => {
+        return '';
+      }),
+      catchError(async (error) => {
+        await this.delete(token, user_id);
+        throw new HttpException(error.response, HttpStatus.BAD_REQUEST);
+      }),
+    );
   }
 
   async delete(token: string, user_id: string): Promise<UserProfile[]> {
@@ -138,7 +157,6 @@ export class UserService {
     );
     return data;
   }
-
 }
 
 //GET /admin/realms/{realm}/users/{id}/role-mappings/clients/{client}

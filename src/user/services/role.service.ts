@@ -71,7 +71,7 @@ export class RoleService {
     token: string,
     role_name: string,
     user_id: string,
-  ): Promise<any[]> {
+  ): Promise<any> {
     const headersRequest: AxiosRequestConfig = {
       headers: {
         Authorization: `${token}`,

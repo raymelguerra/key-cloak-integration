@@ -9,12 +9,12 @@ import {
   HttpStatus,
   Body,
   Delete,
-  Put,
   Patch,
 } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { UserProfile } from 'src/utils/types/user-profile.type';
 import { RoleService } from './services/role.service';
+import { EmailSearchOption } from 'src/utils/types/email-search-option.type';
 
 @Controller('user')
 export class UserController {
@@ -38,10 +38,10 @@ export class UserController {
   }
 
   @Post('')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  create(@Request() req: Request, @Body() body: UserProfile) {
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  create(@Request() req: Request, @Body() body: UserProfile, @Query() query: EmailSearchOption) {
     const { authorization } = req.headers as any;
-    return this.userService.create(authorization, body);
+    return this.userService.create(authorization, body, query);
   }
 
   @Delete(':user_id')

@@ -17,6 +17,7 @@ import {
   Roles,
   RoleMatchingMode,
 } from 'nest-keycloak-connect';
+import { EmailSearchOption } from 'src/utils/types/email-search-option.type';
 
 @Controller('auth')
 export class AuthController {
@@ -91,12 +92,13 @@ export class AuthController {
 
   @Public()
   @Get('/recovery-password')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  // @HttpCode(HttpStatus.NO_CONTENT)
   sendPasswordRecoveryEmail(
     @Query('email') email: string,
     @Query('lifespan') lifespan: number,
+    @Query('redirect_uri') redirect_uri: string,
   ) {
-    return this.authService.recoveryPassword(email, lifespan);
+    return this.authService.recoveryPassword(email, lifespan, redirect_uri);
   }
 
   @Post('/change-password')

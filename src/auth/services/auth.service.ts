@@ -7,6 +7,8 @@ import { IntrospectRequest } from 'src/utils/types/introspect.type';
 import { UserService } from 'src/user/services/user.service';
 import { ActionEmail } from 'src/utils/enums/action-email.enum';
 import { URLSearchParams } from 'url';
+import { KeycloakEmailService } from 'src/infrastructure/services/keycloak-email.service';
+import { EmailSearchOption } from 'src/utils/types/email-search-option.type';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly httpService: AxiosHttpService,
     private readonly userService: UserService,
+    private readonly keycloakEmailService: KeycloakEmailService,
   ) {
     this.user.client_id = process.env.CLIENT_ID;
     this.user.client_secret = process.env.SECRET;
@@ -126,7 +129,11 @@ export class AuthService {
     return data;
   }
 
-  async recoveryPassword(email: string, lifespan: number): Promise<any> {
+  async recoveryPassword(
+    email: string,
+    lifespan: number,
+    redirect_uri: string,
+  ): Promise<any> {
     const { access_token } = await this.login(
       process.env.USER_ADMIN,
       process.env.PASSWORD_ADMIN,
@@ -137,23 +144,19 @@ export class AuthService {
     });
     if (users.length == 0) throw new NotFoundException();
 
-    const headersRequest: AxiosRequestConfig = {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-      params: { client_id: this.user.client_id, lifespan },
-    };
-
-    const data = await this.httpService.put(
-      `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${users[0].id}/execute-actions-email`,
-      'Recovery Password',
-      [ActionEmail.UPDATE_PASSWORD],
-      headersRequest,
-    );
-
-    this.revoke(access_token);
-
-    return data;
+    try {
+      const send_email = await this.keycloakEmailService.sendEmail(
+        `Bearer ${access_token}`,
+        users[0].id,
+        [ActionEmail.VERIFY_EMAIL, ActionEmail.UPDATE_PASSWORD],
+        { lifespan, redirect_uri },
+      );
+      return send_email;
+    } catch (error) {
+      return error.response;
+    } finally {
+      this.revoke(access_token);
+    }
   }
 
   async changePassword(user_id: string, new_password: string): Promise<any> {
