@@ -92,7 +92,6 @@ export class AuthController {
 
   @Public()
   @Get('/recovery-password')
-  // @HttpCode(HttpStatus.NO_CONTENT)
   sendPasswordRecoveryEmail(
     @Query('email') email: string,
     @Query('lifespan') lifespan: number,

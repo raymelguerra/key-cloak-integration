@@ -38,7 +38,6 @@ export class UserController {
   }
 
   @Post('')
-  // @HttpCode(HttpStatus.NO_CONTENT)
   create(@Request() req: Request, @Body() body: UserProfile, @Query() query: EmailSearchOption) {
     const { authorization } = req.headers as any;
     return this.userService.create(authorization, body, query);

@@ -34,7 +34,6 @@ export class RoleService {
     };
 
     const data = await this.httpService.get(
-      // `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/users/${user_id}/role-mappings/realm`,
       `${process.env.AUTH_SERVER_URL}/admin/realms/${process.env.REALM}/roles/${role_name}`,
       'Get Role By Name',
       headersRequest,

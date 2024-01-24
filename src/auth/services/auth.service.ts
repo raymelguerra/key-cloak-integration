@@ -167,7 +167,6 @@ export class AuthService {
 
     const headersRequest: AxiosRequestConfig = {
       headers: {
-        // 'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${access_token}`,
       },
     };

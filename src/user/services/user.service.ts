@@ -158,5 +158,3 @@ export class UserService {
     return data;
   }
 }
-
-//GET /admin/realms/{realm}/users/{id}/role-mappings/clients/{client}
